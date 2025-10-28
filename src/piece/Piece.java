@@ -18,6 +18,8 @@ public class Piece {
     public int color;
     public Piece hittingPiece;
 
+    public boolean isMoved;
+
     @Override
     public String toString() {
 
@@ -118,8 +120,7 @@ public class Piece {
         y = getY(row);
         preCol = getCol(x);
         preRow = getRow(y);
-
-
+        isMoved = true;
     }
 
     public boolean canMove(int targetCol, int targetRow) {
@@ -262,5 +263,9 @@ public class Piece {
             }
         }
         return false;
+    }
+
+    public boolean isSameSquare(int targetCol, int targetRow) {
+        return (targetCol == preCol && targetRow == preRow);
     }
 }

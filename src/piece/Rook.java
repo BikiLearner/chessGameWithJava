@@ -13,7 +13,7 @@ public class Rook extends Piece{
     }
     @Override
     public boolean canMove(int targetCol, int targetRow) {
-        if (isWithinBoard(targetCol, targetRow)) {
+        if (isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol,targetRow)) {
             boolean addValueSquare = targetCol==preCol && targetRow!=preRow ;
             boolean multiplyValueSquare = targetRow==preRow && targetCol!=preCol ;
 
