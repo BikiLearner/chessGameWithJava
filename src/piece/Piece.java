@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.io.IOException;
 
 public class Piece {
-
+    public String name;
     // Your existing fields...
     public BufferedImage image;
     public int x, y;
@@ -34,7 +34,7 @@ public class Piece {
     }
 
     // Your constructor
-    public Piece(int color, int col, int row) {
+    public Piece(int color, int col, int row,String name) {
         this.color = color;
         this.row = row;
         this.col = col;
@@ -42,6 +42,8 @@ public class Piece {
         this.x = getX(col);
         preCol = col;
         preRow = row;
+
+        this.name=name;
     }
 
     /**
@@ -79,6 +81,52 @@ public class Piece {
 
         return image;
     }
+
+    private void drawBottomLabel(Graphics2D g2, int colX, int colY, int squareSize) {
+        String label = (name != null && !name.isEmpty()) ? name : getClass().getSimpleName();
+
+        Font oldFont = g2.getFont();
+        float fontSize = Math.max(10, squareSize * 0.14f); // adjust if needed
+        g2.setFont(oldFont.deriveFont(Font.PLAIN, fontSize));
+        FontMetrics fm = g2.getFontMetrics();
+
+        int textWidth = fm.stringWidth(label);
+        int textHeight = fm.getHeight();
+
+        int paddingX = Math.max(6, (int)(squareSize * 0.06f));
+        int paddingY = Math.max(4, (int)(squareSize * 0.04f));
+
+        int bubbleWidth = textWidth + paddingX * 2;
+        int bubbleHeight = textHeight + paddingY;
+
+        // center bubble under the image
+        int bubbleX = colX + (squareSize - bubbleWidth) / 2;
+        int gap = Math.max(4, (int)(squareSize * 0.05f)); // small gap between image and label
+        int bubbleY = colY + squareSize + gap;
+
+        // background (slightly transparent white) and border
+        Composite oldComp = g2.getComposite();
+        g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.95f));
+        Color bg = new Color(255, 255, 255, 230);
+        g2.setColor(bg);
+        int arc = Math.max(8, bubbleHeight / 3);
+        g2.fillRoundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, arc, arc);
+
+        // border
+        g2.setComposite(oldComp);
+        g2.setColor(Color.BLACK);
+        g2.setStroke(new BasicStroke(1f));
+        g2.drawRoundRect(bubbleX, bubbleY, bubbleWidth, bubbleHeight, arc, arc);
+
+        // draw text (centered)
+        int textX = bubbleX + (bubbleWidth - textWidth) / 2;
+        int textY = bubbleY + (bubbleHeight + fm.getAscent() - fm.getDescent()) / 2;
+        g2.drawString(label, textX, textY);
+
+        // restore font
+        g2.setFont(oldFont);
+    }
+
 
     /**
      * Generates a simple placeholder image (gray checkerboard)
@@ -132,8 +180,15 @@ public class Piece {
     }
 
     public void draw(Graphics2D g2) {
+        if (image == null) return;
+
+        // draw image
         g2.drawImage(image, x, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);
+
+        // draw simple label below the image
+//        drawBottomLabel(g2, x, y, Board.SQUARE_SIZE);
     }
+
 
     public void drawOut(Graphics2D g2) {
         g2.drawImage(image, 900, y, Board.SQUARE_SIZE, Board.SQUARE_SIZE, null);

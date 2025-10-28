@@ -4,7 +4,7 @@ import main.GamePanel;
 
 public class Rook extends Piece{
     public Rook(int color,int col,int row){
-        super(color,col,row);
+        super(color,col,row,"Haathi");
         if(color== GamePanel.WHITE){
             image=getImage("/piece/white-rook.png");
         }else {

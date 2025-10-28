@@ -4,7 +4,7 @@ import main.GamePanel;
 
 public class King extends Piece {
     public King(int color, int col, int row) {
-        super(color, col, row);
+        super(color, col, row,"Raja");
         if (color == GamePanel.WHITE) {
             image = getImage("/piece/white-king.png");
         } else {
@@ -22,6 +22,41 @@ public class King extends Piece {
                 if( isValidSquare(targetCol,targetRow)){
                     return true;
                 }
+            }
+
+            //castling
+            if(!isMoved){
+                //right
+                if(targetCol==preCol+2 && targetRow==preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
+                    for (Piece piece : GamePanel.simPieces) {
+                        if (piece.col == preCol + 3 && piece.row == preRow && !piece.isMoved) {
+                            GamePanel.castlingPiece = piece;
+                            return true; // stop once we find it
+                        }
+                    }
+
+                }
+
+                //left part
+                if(targetCol==preCol-2 && targetRow==preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
+                    Piece[] p=new Piece[2];
+                    for (Piece piece : GamePanel.simPieces) {
+                        if (piece.col == preCol - 3 && piece.row == targetRow) {
+                            p[0]=piece;
+                        }
+
+                        if (piece.col == preCol - 4 && piece.row == targetRow) {
+                            p[1]=piece;
+                        }
+
+                        if(p[0]==null && p[1]!=null && !p[1].isMoved){
+                            GamePanel.castlingPiece = piece;
+                            return true;
+                        }
+                    }
+                }
+
+
             }
         }
         return false;

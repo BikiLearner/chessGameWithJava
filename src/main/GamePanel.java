@@ -19,6 +19,8 @@ public class GamePanel extends JPanel implements Runnable {
     public static ArrayList<Piece> removedPieces = new ArrayList<>();
 
     Piece activePiece;
+    public static Piece castlingPiece;
+
 
     //colors part of the chess
     public static final int WHITE = 0;
@@ -46,6 +48,22 @@ public class GamePanel extends JPanel implements Runnable {
     public void launchGame() {
         gameThread = new Thread(this);
         gameThread.start();
+    }
+
+    public void checkCastling(){
+        if(castlingPiece!=null) {
+            if(castlingPiece.col ==0){
+                castlingPiece.col+=3;
+            }else if(castlingPiece.col==7){
+                castlingPiece.col-=2;
+            }
+            castlingPiece.x= castlingPiece.getX(castlingPiece.col);
+        }
+    }
+
+    public void changePlayer(){
+        currentColor=(currentColor==WHITE)?BLACK:WHITE;
+        activePiece=null;
     }
 
     public void setPiece() {
@@ -105,9 +123,16 @@ public class GamePanel extends JPanel implements Runnable {
         if (!mouse.pressed) {
             if (activePiece != null) {
                 if(isValidSquare){
+
+
                     copyPieces(simPieces,pieces);
                     activePiece.updatePiecePosition();
                     //activePiece = null;
+                    if(castlingPiece!=null){
+                        castlingPiece.updatePiecePosition();
+                    }
+
+                    changePlayer();
                 }else {
                     copyPieces(pieces,simPieces);
                     activePiece.resetPosition();
@@ -125,6 +150,16 @@ public class GamePanel extends JPanel implements Runnable {
         canMove=false;
         isValidSquare=false;
         copyPieces(pieces,simPieces);
+
+
+        //reset the castling
+        if(castlingPiece!=null){
+            castlingPiece.col=castlingPiece.preCol;
+            castlingPiece.x= castlingPiece.getX(castlingPiece.col);
+            castlingPiece=null;
+        }
+
+
         //piece position is hold update it position
         activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;
         activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
@@ -136,9 +171,10 @@ public class GamePanel extends JPanel implements Runnable {
             canMove=true;
 
             if(activePiece.hittingPiece!=null){
-                removedPieces.add(activePiece.hittingPiece);
+//                removedPieces.add(activePiece.hittingPiece);
                 simPieces.remove(activePiece.hittingPiece);
             }
+            checkCastling();
             isValidSquare=true;
         }
     }
@@ -168,6 +204,14 @@ public class GamePanel extends JPanel implements Runnable {
             }
             activePiece.draw(g2);
         }
+
+        //StaTus Message
+        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+        g2.setFont(new Font("Book Antiqua",Font.BOLD,40));
+        g2.setColor(Colors.MAGENTA);
+
+        g2.drawString((currentColor == WHITE ? "White's Turn" : "Black's Turn"), 840, 500);
+
     }
 
     @Override
