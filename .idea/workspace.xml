@@ -4,18 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3ea980d3-4442-4629-a13f-62ec37cdef77" name="Changes" comment="New Commit">
-      <change afterPath="$PROJECT_DIR$/src/piece/PieceID.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/GamePanel.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/Bishop.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Bishop.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/King.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/King.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/Knight.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Knight.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/Pawn.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Pawn.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Piece.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/Queen.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Queen.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/piece/Rook.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Rook.java" afterDir="false" />
-    </list>
+    <list default="true" id="3ea980d3-4442-4629-a13f-62ec37cdef77" name="Changes" comment="New Commit" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
