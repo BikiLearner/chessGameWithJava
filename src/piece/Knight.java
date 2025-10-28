@@ -5,6 +5,9 @@ import main.GamePanel;
 public class Knight extends Piece{
     public Knight(int color,int col,int row){
         super(color,col,row,"Ghoda");
+
+        pieceID=PieceID.KNIGHT;
+
         if(color== GamePanel.WHITE){
             image=getImage("/piece/white-knight.png");
         }else {

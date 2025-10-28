@@ -8,8 +8,12 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 public class Piece {
+
+    public PieceID pieceID;
+
     public String name;
     // Your existing fields...
     public BufferedImage image;
@@ -18,7 +22,7 @@ public class Piece {
     public int color;
     public Piece hittingPiece;
 
-    public boolean isMoved;
+    public boolean isMoved,twoStepped;
 
     @Override
     public String toString() {
@@ -53,7 +57,7 @@ public class Piece {
      * @return BufferedImage or a fallback placeholder if not found.
      */
     public BufferedImage getImage(String imagePath) {
-        BufferedImage image = null;
+        BufferedImage image;
         String fullPath = imagePath.endsWith(".png") ? imagePath : imagePath + ".png";
 
         try (InputStream is = getClass().getResourceAsStream(fullPath)) {
@@ -164,6 +168,14 @@ public class Piece {
     }
 
     public void updatePiecePosition() {
+
+        //check for en passant
+        if(pieceID== PieceID.PAWN){
+            if(Math.abs(row-preRow)==2){
+                twoStepped=true;
+            }
+        }
+
         x = getX(col);
         y = getY(row);
         preCol = getCol(x);
@@ -323,4 +335,5 @@ public class Piece {
     public boolean isSameSquare(int targetCol, int targetRow) {
         return (targetCol == preCol && targetRow == preRow);
     }
+
 }
