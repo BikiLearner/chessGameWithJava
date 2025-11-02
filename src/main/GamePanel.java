@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static main.Board.SQUARE_SIZE;
 
@@ -20,6 +21,7 @@ public class GamePanel extends JPanel implements Runnable {
     public static ArrayList<Piece> pieces = new ArrayList<>();
     public static ArrayList<Piece> simPieces = new ArrayList<>();
     public static ArrayList<Piece> promotionPiece = new ArrayList<>();
+    public static int[][] squareCanMoveColor = new int[8][8];
 
     Piece activePiece, checkingP;
     public static Piece castlingPiece;
@@ -45,9 +47,9 @@ public class GamePanel extends JPanel implements Runnable {
         setBackground(Colors.DARK_GRAY);
         addMouseMotionListener(mouse);
         addMouseListener(mouse);
-//        setPiece();
+        setPiece();
 //        testPromotion()
-        testIllegal();
+//        testIllegal();
         copyPieces(pieces, simPieces);
     }
 
@@ -161,6 +163,7 @@ public class GamePanel extends JPanel implements Runnable {
                         if (p.color == currentColor && p.col == mouseColX && p.row == mouseColY) {
 //                        System.out.println(activePiece.toString());
                             activePiece = p;
+                            determineBoxOfMove();
                         }
                     }
                 } else {
@@ -174,7 +177,8 @@ public class GamePanel extends JPanel implements Runnable {
 
                         copyPieces(simPieces, pieces);
                         activePiece.updatePiecePosition();
-                        //activePiece = null;
+
+
                         if (castlingPiece != null) {
                             castlingPiece.updatePiecePosition();
                         }
@@ -190,12 +194,13 @@ public class GamePanel extends JPanel implements Runnable {
                                 changePlayer();
                             }
                         }
-
-
+                        activePiece = null;
+                        determineBoxOfMove();
                     } else {
                         copyPieces(pieces, simPieces);
                         activePiece.resetPosition();
                         activePiece = null;
+
                     }
                 }
             }
@@ -477,6 +482,25 @@ public class GamePanel extends JPanel implements Runnable {
         }
     }
 
+    private void determineBoxOfMove() {
+        // clear all first
+        for (int r = 0; r < 8; r++) {
+            Arrays.fill(squareCanMoveColor[r], 0);
+        }
+
+        if (activePiece != null) {
+            // mark allowed squares (row-major)
+            for (int row = 0; row < 8; row++) {
+                for (int col = 0; col < 8; col++) {
+                    if (activePiece.canMove(col, row)) {
+                        squareCanMoveColor[row][col] = 1;
+                    }
+                }
+            }
+        }
+    }
+
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g;
@@ -488,10 +512,21 @@ public class GamePanel extends JPanel implements Runnable {
             p.draw(g2);
         }
 
-        //draw remove piece
-//        for (Piece p : removedPieces) {
-//            p.drawOut(g2);
-//        }
+        // draw highlights (row-major)
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (squareCanMoveColor[row][col] == 1) {
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
+                    g2.setColor(Color.yellow);
+                    g2.fillRect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+                    // restore to fully opaque right away
+                    g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
+                }
+            }
+        }
+
+
+
         if (activePiece != null) {
             if (canMove) {
                 if (isIllegal(activePiece) || opponentCanCaptureKing()) {
