@@ -15,7 +15,7 @@ public class Bishop extends Piece{
     }
     @Override
     public boolean canMove(int targetCol, int targetRow) {
-        if (isWithinBoard(targetCol, targetRow)) {
+        if (isWithinBoard(targetCol, targetRow) && !isSameSquare(targetCol,targetRow)) {
             int cols = Math.abs(targetCol-preCol);
             int rows = Math.abs(targetRow-preRow);
 

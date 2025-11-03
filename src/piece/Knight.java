@@ -17,7 +17,7 @@ public class Knight extends Piece{
 
     @Override
     public boolean canMove(int targetCol, int targetRow) {
-        if (isWithinBoard(targetCol, targetRow)) {
+        if (isWithinBoard(targetCol, targetRow)  &&  !isSameSquare(targetCol,targetRow)) {
 //            int addValueSquare = Math.abs(targetCol - preCol) + Math.abs(targetRow - preRow);
             int multiplyValueSquare = Math.abs(targetCol - preCol) * Math.abs(targetRow - preRow);
 

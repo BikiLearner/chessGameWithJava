@@ -8,7 +8,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.io.IOException;
-import java.lang.reflect.Type;
 
 public class Piece {
 
@@ -21,6 +20,7 @@ public class Piece {
     public int col, row, preCol, preRow;
     public int color;
     public Piece hittingPiece;
+    public int histRow,histCol;
 
     public boolean isMoved,twoStepped;
 
@@ -44,6 +44,8 @@ public class Piece {
         this.col = col;
         this.y = getY(row);
         this.x = getX(col);
+        histRow=preRow;
+        histCol=preCol;
         preCol = col;
         preRow = row;
 
@@ -187,6 +189,10 @@ public class Piece {
         return false;
     }
 
+    public boolean checkIsPlayedMovedNewPosition(){
+        return histRow!=preRow && histCol!=preCol;
+    }
+
     public boolean isWithinBoard(int targetCol, int targetRow) {
         return (targetCol >= 0 && targetCol <= 7 && targetRow >= 0 && targetRow <= 7);
     }
@@ -236,9 +242,10 @@ public class Piece {
         return false;
     }
 
+
     public boolean pieceIsOnStraightLine(int targetCol, int targetRow) {
         // checking left
-        for (int c = preCol - 1; c > targetCol; c--) {
+        for (int c = preCol; c > targetCol; c--) {
             for (Piece p : GamePanel.simPieces) {
                 if (p.col == c && p.row == targetRow) {
                     hittingPiece = p;

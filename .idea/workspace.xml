@@ -5,7 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ea980d3-4442-4629-a13f-62ec37cdef77" name="Changes" comment="New Commit">
+      <change afterPath="$PROJECT_DIR$/src/main/CountdownTimer.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/SimpleChessAI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/GamePanel.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/GamePanel.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/piece/Bishop.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Bishop.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/piece/King.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/King.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/piece/Knight.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Knight.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/piece/Piece.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Piece.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/piece/Queen.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/piece/Queen.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,8 +23,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Class" />
         <option value="Enum" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -112,11 +120,30 @@
       <option name="project" value="LOCAL" />
       <updated>1761667420784</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="New Commit">
+      <option name="closed" value="true" />
+      <created>1762091337171</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1762091337171</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="New Commit" />
     <option name="LAST_COMMIT_MESSAGE" value="New Commit" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/GamePanel.java</url>
+          <line>453</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

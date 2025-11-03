@@ -41,6 +41,7 @@ public class King extends Piece {
 
                 //left part
                 if(targetCol==preCol-2 && targetRow==preRow && !pieceIsOnStraightLine(targetCol,targetRow)){
+                    System.out.println("target row : " + targetCol);
                     Piece[] p=new Piece[2];
                     for (Piece piece : GamePanel.simPieces) {
                         if (piece.col == preCol - 3 && piece.row == targetRow) {
@@ -63,4 +64,5 @@ public class King extends Piece {
         }
         return false;
     }
+
 }

@@ -4,9 +4,9 @@ import main.GamePanel;
 
 public class Queen extends Piece {
     public Queen(int color, int col, int row) {
-        super(color, col, row,"Rani");
+        super(color, col, row, "Rani");
 
-        pieceID=PieceID.QUEEN;
+        pieceID = PieceID.QUEEN;
         if (color == GamePanel.WHITE) {
             image = getImage("/piece/white-queen.png");
         } else {
@@ -24,7 +24,7 @@ public class Queen extends Piece {
             boolean addValueSquare = targetCol == preCol && targetRow != preRow;
             boolean multiplyValueSquare = targetRow == preRow && targetCol != preCol;
             if (cols == rows || addValueSquare || multiplyValueSquare) {
-                if (isValidSquare(targetCol, targetRow) && !pieceIsOnDiagonalLine(targetCol, targetRow)) {
+                if (isValidSquare(targetCol, targetRow) && !pieceIsOnDiagonalLine(targetCol, targetRow) && !pieceIsOnStraightLine(targetCol, targetRow)) {
                     return true;
                 }
             }

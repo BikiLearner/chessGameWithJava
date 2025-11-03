@@ -8,6 +8,9 @@ import java.awt.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import static main.Board.SQUARE_SIZE;
 
@@ -15,6 +18,8 @@ public class GamePanel extends JPanel implements Runnable {
     public static final int WIDTH = 1100;
     public static final int HEIGHT = 800;
     public int FPS = 60;
+    public int timeCounter=0;
+    private final CountdownTimer timer = new CountdownTimer(60);
 
 
     //Pieces
@@ -25,6 +30,7 @@ public class GamePanel extends JPanel implements Runnable {
 
     Piece activePiece, checkingP;
     public static Piece castlingPiece;
+    private boolean gameStarted = false;
 
 
     //colors part of the chess
@@ -40,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable {
     //boolean
     boolean canMove;
     boolean isValidSquare;
-    boolean promotion, gameOver,staleMate;
+    boolean promotion, gameOver, staleMate;
 
     public GamePanel() {
         setPreferredSize(new Dimension(WIDTH, HEIGHT));
@@ -70,18 +76,21 @@ public class GamePanel extends JPanel implements Runnable {
     }
 
     public void changePlayer() {
-
         int opponentColor = (currentColor == WHITE) ? BLACK : WHITE;
-
-        for (Piece p : pieces) {
-            if (p.color == opponentColor) {
-                p.twoStepped = false;
-            }
-        }
-
+        // toggle current color
         currentColor = opponentColor;
         activePiece = null;
+
+//        // reset the countdown to 60 and ensure it's running
+//        timer.reset(60);
+//        timer.start();
+
+        // existing logic:
+        for (Piece p : pieces) {
+            if (p.color == opponentColor) p.twoStepped = false;
+        }
     }
+
 
     public void setPiece() {
         //White
@@ -125,7 +134,7 @@ public class GamePanel extends JPanel implements Runnable {
         pieces.add(new Queen(BLACK, 4, 5));
     }
 
-    public void copyPieces(ArrayList<Piece> source, ArrayList<Piece> target) {
+    public static void copyPieces(ArrayList<Piece> source, ArrayList<Piece> target) {
         target.clear();
         target.addAll(source);
     }
@@ -144,68 +153,93 @@ public class GamePanel extends JPanel implements Runnable {
         return false;
     }
 
+
     private void update() {
+
+//        timer.addTickListener(sec -> {
+//            // tick runs on timer's executor thread; switch to EDT for Swing UI updates
+//            SwingUtilities.invokeLater(() -> {
+//                changePlayer();
+//                timeCounter = sec;
+//                // update any label if you have one, e.g. timeLabel.setText(String.valueOf(sec));
+//            });
+//        });
 
         if (promotion) {
             promoting();
+        } else if (!gameOver && !staleMate) {
+            if (currentColor != WHITE) {
+                try {
+                    TimeUnit.SECONDS.sleep(3);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                } finally {
+                    simulate();
+                }
+            } else {
+                mousePressed();
+            }
+        }
 
-        } else if(!gameOver && !staleMate) {
-            if (mouse.pressed) {
-                if (activePiece == null) {
-                    int mouseColX = mouse.x / SQUARE_SIZE;
-                    int mouseColY = mouse.y / SQUARE_SIZE;
+    }
+
+    private void mousePressed() {
+        if (mouse.pressed) {
+            if (activePiece == null) {
+                int mouseColX = mouse.x / SQUARE_SIZE;
+                int mouseColY = mouse.y / SQUARE_SIZE;
 //                System.out.println("Mouse Column X "+ mouseColX + "  Mouse Column Y " + mouseColY);
-                    for (Piece p : simPieces) {
+                for (Piece p : simPieces) {
 //                    if(p.color==currentColor){
 //                        System.out.println(p);
 //                    }
 
-                        if (p.color == currentColor && p.col == mouseColX && p.row == mouseColY) {
+                    if (p.color == currentColor && p.col == mouseColX && p.row == mouseColY) {
 //                        System.out.println(activePiece.toString());
-                            activePiece = p;
-                            determineBoxOfMove();
-                        }
+                        activePiece = p;
+                        determineBoxOfMove();
                     }
-                } else {
-                    simulate();
                 }
+            } else {
+                simulate();
             }
-            if (!mouse.pressed) {
-                if (activePiece != null) {
-                    if (isValidSquare) {
+        }
+        if (!mouse.pressed) {
+            if (activePiece != null) {
+                if (isValidSquare) {
+                    copyPieces(simPieces, pieces);
+                    activePiece.updatePiecePosition();
+                    System.out.println(activePiece.toString());
 
 
-                        copyPieces(simPieces, pieces);
-                        activePiece.updatePiecePosition();
+                    if (castlingPiece != null) {
+                        castlingPiece.updatePiecePosition();
+                    }
 
-
-                        if (castlingPiece != null) {
-                            castlingPiece.updatePiecePosition();
-                        }
-
-                        if (isKingInCheck() && isCheckMate()) {
-                            gameOver=true;
-                        } else if (isStaleMate() && !isKingInCheck()) {
-                            staleMate=true;
-                        } else{
-                            if (canPromote()) {
-                                promotion = true;
-                            } else {
+                    if (isKingInCheck() && isCheckMate()) {
+                        gameOver = true;
+                    } else if (isStaleMate() && !isKingInCheck()) {
+                        staleMate = true;
+                    } else {
+                        if (canPromote()) {
+                            promotion = true;
+                        } else {
+                            if (activePiece.checkIsPlayedMovedNewPosition()) {
                                 changePlayer();
                             }
-                        }
-                        activePiece = null;
-                        determineBoxOfMove();
-                    } else {
-                        copyPieces(pieces, simPieces);
-                        activePiece.resetPosition();
-                        activePiece = null;
 
+                        }
                     }
+                    activePiece = null;
+                    determineBoxOfMove();
+                } else {
+                    copyPieces(pieces, simPieces);
+                    activePiece.resetPosition();
+                    activePiece = null;
+
                 }
             }
         }
-
     }
 
     private boolean isKingInCheck() {
@@ -282,7 +316,7 @@ public class GamePanel extends JPanel implements Runnable {
                     // above the king
                     if (checkingP.col < king.col) {
                         // left the king
-                        for (int col = checkingP.col,row=checkingP.row; col < king.col; col++,row++) {
+                        for (int col = checkingP.col, row = checkingP.row; col < king.col; col++, row++) {
                             for (Piece piece : simPieces) {
                                 if (piece != king && piece.color != currentColor && piece.canMove(col, row)) {
                                     return false;
@@ -293,7 +327,7 @@ public class GamePanel extends JPanel implements Runnable {
                     if (checkingP.col > king.col) {
                         //right the king
 
-                        for (int col = checkingP.col,row=checkingP.row; col > king.col; col--,row++) {
+                        for (int col = checkingP.col, row = checkingP.row; col > king.col; col--, row++) {
                             for (Piece piece : simPieces) {
                                 if (piece != king && piece.color != currentColor && piece.canMove(col, row)) {
                                     return false;
@@ -308,7 +342,7 @@ public class GamePanel extends JPanel implements Runnable {
 
                     if (checkingP.col < king.col) {
                         // left the king
-                        for (int col = checkingP.col,row=checkingP.row; col < king.col; col++,row--) {
+                        for (int col = checkingP.col, row = checkingP.row; col < king.col; col++, row--) {
                             for (Piece piece : simPieces) {
                                 if (piece != king && piece.color != currentColor && piece.canMove(col, row)) {
                                     return false;
@@ -319,7 +353,7 @@ public class GamePanel extends JPanel implements Runnable {
                     if (checkingP.col > king.col) {
                         //right the king
 
-                        for (int col = checkingP.col,row=checkingP.row; col > king.col; col--,row--) {
+                        for (int col = checkingP.col, row = checkingP.row; col > king.col; col--, row--) {
                             for (Piece piece : simPieces) {
                                 if (piece != king && piece.color != currentColor && piece.canMove(col, row)) {
                                     return false;
@@ -339,15 +373,15 @@ public class GamePanel extends JPanel implements Runnable {
         return true;
     }
 
-    private boolean isStaleMate(){
-        int count =0;
-        for(Piece piece:simPieces){
-            if(piece.color!=currentColor){
+    private boolean isStaleMate() {
+        int count = 0;
+        for (Piece piece : simPieces) {
+            if (piece.color != currentColor) {
                 count++;
             }
         }
-        if(count==1){
-            if(!kingCanMove(getKing(true))){
+        if (count == 1) {
+            if (!kingCanMove(getKing(true))) {
                 return true;
             }
         }
@@ -452,7 +486,6 @@ public class GamePanel extends JPanel implements Runnable {
         isValidSquare = false;
         copyPieces(pieces, simPieces);
 
-
         //reset the castling
         if (castlingPiece != null) {
             castlingPiece.col = castlingPiece.preCol;
@@ -460,19 +493,37 @@ public class GamePanel extends JPanel implements Runnable {
             castlingPiece = null;
         }
 
-
         //piece position is hold update it position
-        activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;
-        activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
-        activePiece.col = activePiece.getCol(activePiece.x);
-        activePiece.row = activePiece.getRow(activePiece.y);
+        if (currentColor != BLACK) {
+            // Human drag logic as before
+            activePiece.x = mouse.x - Board.HALF_SQUARE_SIZE;
+            activePiece.y = mouse.y - Board.HALF_SQUARE_SIZE;
+            activePiece.col = activePiece.getCol(activePiece.x);
+            activePiece.row = activePiece.getRow(activePiece.y);
+        } else {
+            // AI turn: perform AI move on simPieces, then apply it to real board and change player
+            SimpleChessAI.makeAiMove();
 
-        // check can move
-        if (activePiece.canMove(activePiece.col, activePiece.row)) {
+            // Commit simPieces -> pieces so board updates and UI shows AI move
+            copyPieces(simPieces, pieces);
+
+            // Optionally update moved piece's "updatePiecePosition" etc.
+            // If Piece.updatePiecePosition() updates internal state (x/y based on col/row),
+            // call it for all pieces or at least for the AI mover. For simplicity, call for all:
+            for (Piece p : pieces) {
+                p.x = p.getX(p.col);
+                p.y = p.getY(p.row);
+            }
+
+            // Switch turn to human
+            changePlayer();
+        }
+
+        // check can move (this block runs only for human drag)
+        if (activePiece != null && activePiece.canMove(activePiece.col, activePiece.row)) {
             canMove = true;
 
             if (activePiece.hittingPiece != null) {
-//                removedPieces.add(activePiece.hittingPiece);
                 simPieces.remove(activePiece.hittingPiece);
             }
             checkCastling();
@@ -481,6 +532,7 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
     }
+
 
     private void determineBoxOfMove() {
         // clear all first
@@ -508,7 +560,7 @@ public class GamePanel extends JPanel implements Runnable {
 
         //pieces
         for (Piece p : simPieces) {
-            System.out.println("draw called ");
+            //System.out.println("draw called ");
             p.draw(g2);
         }
 
@@ -517,14 +569,13 @@ public class GamePanel extends JPanel implements Runnable {
             for (int col = 0; col < 8; col++) {
                 if (squareCanMoveColor[row][col] == 1) {
                     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.7f));
-                    g2.setColor(Color.yellow);
+                    g2.setColor(Colors.MATERIAL_BLUE_GREY);
                     g2.fillRect(col * SQUARE_SIZE, row * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
                     // restore to fully opaque right away
                     g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));
                 }
             }
         }
-
 
 
         if (activePiece != null) {
@@ -573,17 +624,19 @@ public class GamePanel extends JPanel implements Runnable {
             }
         }
 
-        if(gameOver){
-            String s=(currentColor==WHITE)?"White Wins":"Black Wins";
-            g2.setFont(new Font("Arial",Font.PLAIN,90));
+
+
+        if (gameOver) {
+            String s = (currentColor == WHITE) ? "White Wins" : "Black Wins";
+            g2.setFont(new Font("Arial", Font.PLAIN, 90));
             g2.setColor(Colors.MIDNIGHT_BLUE);
-            g2.drawString(s,200,420);
+            g2.drawString(s, 200, 420);
         }
-        if(staleMate){
-            String s="StaleMate (Draw)";
-            g2.setFont(new Font("Arial",Font.PLAIN,90));
+        if (staleMate) {
+            String s = "StaleMate (Draw)";
+            g2.setFont(new Font("Arial", Font.PLAIN, 90));
             g2.setColor(Colors.RED);
-            g2.drawString(s,200,420);
+            g2.drawString(s, 200, 420);
         }
 
 
